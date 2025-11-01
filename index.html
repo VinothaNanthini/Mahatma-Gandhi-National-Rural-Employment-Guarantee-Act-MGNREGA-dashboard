@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Voice, Our Rights - MGNREGA Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇮🇳</text></svg>">
+    <!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<!-- Leaflet JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body>
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content welcome-modal">
+            <div class="welcome-icon">
+                <div class="icon-circle">ℹ️</div>
+            </div>
+            <h2 id="welcomeTitle">Welcome! This website helps you understand MGNREGA performance in your district.</h2>
+            <p id="welcomeDesc">Click on any metric to hear an explanation. Use the language button to switch to Tamil.</p>
+            <button id="getStartedBtn" class="btn-primary large">Get Started 🚀</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="logo-wrapper">
+                        <div class="logo-icon">📍</div>
+                    </div>
+                    <div class="brand-text">
+                        <h1 id="headerTitle">Our Voice, Our Rights</h1>
+                        <p id="headerSubtitle">MGNREGA District Performance Dashboard</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="langToggle" class="btn-lang">தமிழ்</button>
+                    <button id="guideToggle" class="btn-guide">
+                        <span>📖</span>
+                        <span id="guideText">Guide</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Guide Panel -->
+    <div id="guidePanel" class="guide-panel hidden">
+        <div class="container">
+            <div class="guide-content">
+                <h3 class="guide-title">
+                    <span>ℹ️</span>
+                    <span id="guideHeading">How to Use This Website</span>
+                </h3>
+                <ul class="guide-list">
+                    <li>
+                        <span class="step-number">1️⃣</span>
+                        <span id="step1">Select your district from the dropdown menu</span>
+                    </li>
+                    <li>
+                        <span class="step-number">2️⃣</span>
+                        <span id="step2">Click "Show Report" to see the data</span>
+                    </li>
+                    <li>
+                        <span class="step-number">3️⃣</span>
+                        <span id="step3">Click on any metric card to hear audio explanation</span>
+                    </li>
+                    <li>
+                        <span class="step-number">4️⃣</span>
+                        <span id="step4">Use language toggle to switch between English and Tamil</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- District Selection Card -->
+            <div id="selectionCard" class="selection-card">
+                <div class="selection-header">
+                    <div class="selection-icon bounce">
+                        <span>📍</span>
+                    </div>
+                    <h2 id="selectDistrictTitle">Select Your District</h2>
+                    <p id="stateLabel">Tamil Nadu</p>
+                </div>
+                
+                <div class="selection-form">
+                    <div class="form-group">
+                        <select id="districtSelect" class="district-select">
+                            <option value="" id="selectPlaceholder">-- Select Your District --</option>
+                        </select>
+                    </div>
+                    
+                    <button id="showReportBtn" class="btn-primary large" disabled>
+                        <span id="showReportText">Show District Report</span>
+                    </button>
+
+                    <div class="info-banner">
+                        <span>💡</span>
+                        <p id="infoBannerText">Real-time data from Government of India MGNREGA API</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Card (Hidden Initially) -->
+            <div id="dashboardCard" class="dashboard-card hidden">
+                <!-- District Header -->
+                <div class="district-header">
+                    <div class="district-info">
+                        <h2 id="districtName">Loading...</h2>
+                        <p id="districtState">Tamil Nadu</p>
+                    </div>
+                    <button id="changeDistrictBtn" class="btn-secondary">
+                        <span>🔄</span>
+                        <span id="changeDistrictText">Change District</span>
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-state">
+                    <div class="loader"></div>
+                    <p id="loadingText">Loading district data...</p>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div id="metricsGrid" class="metrics-grid hidden">
+                    <div class="metric-card card-green" data-metric="employed">
+                        <div class="metric-icon">👷</div>
+                        <div class="metric-value" id="employedValue">--</div>
+                        <div class="metric-label" id="employedLabel">People Employed</div>
+                        <div class="metric-audio">
+                            <span>🔊</span>
+                            <span id="listenText1">Listen</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card card-blue" data-metric="wages">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-value" id="wagesValue">--</div>
+                        <div class="metric-label" id="wagesLabel">Total Wages Paid</div>
+                        <div class="metric-audio">
+                            <span>🔊</span>
+                            <span id="listenText2">Listen</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card card-purple" data-metric="workdays">
+                        <div class="metric-icon">📅</div>
+                        <div class="metric-value" id="workdaysValue">--</div>
+                        <div class="metric-label" id="workdaysLabel">Workdays Generated</div>
+                        <div class="metric-audio">
+                            <span>🔊</span>
+                            <span id="listenText3">Listen</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card card-orange" data-metric="pending">
+                        <div class="metric-icon">⏳</div>
+                        <div class="metric-value" id="pendingValue">--</div>
+                        <div class="metric-label" id="pendingLabel">Pending Payments</div>
+                        <div class="metric-audio">
+                            <span>🔊</span>
+                            <span id="listenText4">Listen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trend Chart -->
+                <div id="trendSection" class="trend-section hidden">
+                    <h3 class="trend-title">
+                        <span>📈</span>
+                        <span id="trendHeading">Employment Trend (Last 6 Months)</span>
+                    </h3>
+                    <div class="chart-container">
+                        <div id="chartBars" class="chart-bars"></div>
+                    </div>
+                </div>
+                <!-- District Map -->
+<div id="mapSection" class="trend-section hidden">
+  <h3 class="trend-title">
+    <span>🗺️</span>
+    <span id="mapHeading">District Location (Geotagging)</span>
+  </h3>
+  <div id="mapContainer" style="height: 350px; border-radius: 20px; overflow: hidden;"></div>
+</div>
+
+                <!-- Additional Info -->
+                <div id="additionalInfo" class="additional-info hidden">
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <div class="info-icon">📊</div>
+                            <h4 id="dataSourceTitle">Data Source</h4>
+                            <p id="dataSourceText">Official MGNREGA API (data.gov.in)</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-icon">🔄</div>
+                            <h4 id="updateTitle">Last Updated</h4>
+                            <p id="updateText">Real-time data</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-icon">📱</div>
+                            <h4 id="accessTitle">Accessibility</h4>
+                            <p id="accessText">Works on all devices</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>🇮🇳 Government of India | MGNREGA Performance Dashboard</p>
+            <p class="footer-small" id="footerText">Empowering rural India with transparent data access</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

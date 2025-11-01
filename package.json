@@ -1,0 +1,16 @@
+{
+  "name": "mgnrega-app",
+  "version": "1.0.0",
+  "description": "MGNREGA District Performance App",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^2.6.7",
+    "express-rate-limit": "^7.0.0"
+  }
+}
